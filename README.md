@@ -14,8 +14,8 @@ This software is released under the MIT License, see LICENSE.
 Discordでワンナイト人狼のGMをやってくれるBOTです。  
 現在、言語は日本語のみですが、英語版も作成中です。  
 動作環境は  
-Python3.4 or 3.5  
-discord  
+Python>=3.5  
+discord.py>=1.3.4  
 です。  
 
 ## 導入方法
@@ -23,7 +23,7 @@ discord
 
 2. 要求ライブラリのインストール
 
-    `$ pip install discord`
+    `$ pip install discord.py=="1.3.4"`
 
 
 ## 遊び方
@@ -88,3 +88,7 @@ option.iniの[BOT]以下の
 ## その他
 MITライセンスの範囲内で、改変・再配布・宣伝等ご自由にしていただいて構いません。その際はお知らせいただけると喜びます。
 不具合やリクエスト等がありましたら、気軽にissueを開いてください。
+
+### TODO
+夜のアクションや投票を同時並列的にこなせるようにする。(マルチスレッド化？)
+英語を書く
