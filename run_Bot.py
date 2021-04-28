@@ -115,7 +115,7 @@ async def on_message(message):
                         message = await client.wait_for("message", check=wait_for_player)
                         receive.put(message.content)
 
-                players = swapThief(players)
+                players = swapRobber(players)
                 await CHANNEL.send('全員のアクションが完了したので、誰を処刑するか話し合いを始めてください。\n話し合いが終わったら"/ready"と入力。')
                 message = await client.wait_for('message', check=wait_for_ready)
 
@@ -165,16 +165,16 @@ class Player():
     def __init__(self, discord):
         self.role = ""
         self.type = ""
-        self.thiefflag = False
-        self.thiefbuff = ""
+        self.robberflag = False
+        self.robberbuff = ""
         self.discord = discord
         self.name = self.discord.name
         self.voted = 0
         send.put(self.name)
 
     def action(self, players, remaining):
-        if self.role == "fortune teller":
-            send.put(["/fortune", 'あなたは##### fortune teller #####です。\n\n占いをするか、残りの2枚のカードを見るか選択してください。\n1 占う\n2 カードを見る'])#\n\n返答は"/fortune [content]"のフォーマットで行ってください。'])
+        if self.role == "seer":
+            send.put(["/seer", 'あなたは##### seer #####です。\n\n占いをするか、残りの2枚のカードを見るか選択してください。\n1 占う\n2 カードを見る'])#\n\n返答は"/seer [content]"のフォーマットで行ってください。'])
             while True:
                 choice = receive.get()
                 if choice not in ["1", "2"]:
@@ -192,7 +192,7 @@ class Player():
                     else:
                         sentence += (str(i+1) + " " + player.name + "\n")
                         tmp.append(str(i+1))
-                send.put(["/fortune", sentence])
+                send.put(["/seer", sentence])
                 while True:
                     target = receive.get()
                     if target is None:
@@ -225,8 +225,8 @@ class Player():
             send.put(["end", sentence])
 
 
-        elif self.role == "thief":
-            sentence = "あなたは##### thief #####です。\n役職を交換したいプレイヤーの番号を入力してください。\n"
+        elif self.role == "robber":
+            sentence = "あなたは##### robber #####です。\n役職を交換したいプレイヤーの番号を入力してください。\n"
             tmp = []
             for i, player in enumerate(players):
                 if player.name == self.name:
@@ -234,7 +234,7 @@ class Player():
                 else:
                     sentence += (str(i+1) + " " + player.name + "\n")
                     tmp.append(str(i+1))
-            send.put(["/thief", sentence])
+            send.put(["/robber", sentence])
             while True:
                 target = receive.get()
                 if target is None:
@@ -242,9 +242,9 @@ class Player():
                 elif target in tmp:
                     target = int(target) - 1
                     newrole = players[target].role
-                    players[target].thiefflag = True
-                    self.thiefflag = True
-                    self.thiefbuff = newrole
+                    players[target].robberflag = True
+                    self.robberflag = True
+                    self.robberbuff = newrole
                     send.put(["end", players[target].name + " からカードを奪い、あなたは " + newrole + " になりました。\nこのことは相手には通知されません。\n\nこれであなたのアクションは完了しました。"])
                     break
 
@@ -257,8 +257,8 @@ class Player():
             hoge = receive.get()
             send.put(["end", "\nこれであなたのアクションは完了しました。"])
 
-        elif self.role == "citizen":
-            send.put(["/citizen","あなたは##### citizen #####です。\nやることはないので、カモフラージュのために何か適当に打ち込んでください。"])
+        elif self.role == "villager":
+            send.put(["/villager","あなたは##### villager #####です。\nやることはないので、カモフラージュのために何か適当に打ち込んでください。"])
             hoge = receive.get()
             send.put(["end", "\nこれであなたのアクションは完了しました。"])
 
@@ -266,7 +266,7 @@ class Player():
         if self.role == "hangman":
             return "hangman"
         elif self.role == "werewolf":
-            return "citizen"
+            return "villager"
         elif "werewolf" not in playable:
             return "nobody"
         else:
@@ -292,13 +292,13 @@ def decideRole(deck):
 
     return playable, remaining
 
-def swapThief(players):
+def swapRobber(players):
     for player in players:
-        if player.thiefflag == True:
-            if player.role == "thief":
-                player.role = player.thiefbuff
+        if player.robberflag == True:
+            if player.role == "robber":
+                player.role = player.robberbuff
             else:
-                player.role = "thief"
+                player.role = "robber"
 
     return players
 
@@ -380,7 +380,7 @@ def getGameresult(players, results, remaining):
             if player.role == "hangman":
                 sentence += (player.name + "\t" + player.role + "\n")
 
-    elif "citizen" in results:
+    elif "villager" in results:
         send.put([" ", "### 市民チーム ### の勝利です。\n\n勝利プレイヤー\t役職"])
         for player in players:
             if player.role not in ["hangman", "werewolf"]:
